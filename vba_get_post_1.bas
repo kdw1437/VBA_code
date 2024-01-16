@@ -72,6 +72,23 @@ Sub UpdateClosePrice()
     Next item
     ' ... [rest of your code]
     
+        ' Compare and fill in 1 if the index matches
+    Dim rowIndex As Integer
+    Dim columnIndex As Integer
     
+    For columnIndex = 3 To ws.Cells(columnnameRow, Columns.Count).End(xlToLeft).Column
+        Dim headerValue As String
+        headerValue = ws.Cells(columnnameRow, columnIndex).Value
+        
+        For rowIndex = startRow To ws.Cells(Rows.Count, 1).End(xlUp).Row
+            If ws.Cells(rowIndex, 1).Value = headerValue Then
+                ws.Cells(rowIndex, columnIndex).Value = 1
+            End If
+        Next rowIndex
+    Next columnIndex
+
+
 End Sub
+
+'이거 작동하는 코드 correlation 전까지
 
