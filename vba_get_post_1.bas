@@ -200,6 +200,42 @@ Sub UpdateClosePrice()
         Next rowIndex
     Next columnIndex
     
+    If ws.Cells(currentRow2 + 1, 1).Value <> "Yield Curve" Then
+        ws.Cells(currentRow2 + 1, 1).Value = "Yield Curve"
+    End If
+    
+    Dim dataGet3 As Collection
+    Set dataGet3 = jsonResponse("data_get_3")
+    
+    ' Create a dictionary to hold unique dataId values
+    Dim uniqueDataIds As Object
+    Set uniqueDataIds = CreateObject("Scripting.Dictionary")
+    
+    ' Populate the dictionary with unique dataId values
+    Dim dataItem As Dictionary
+    For Each dataItem In dataGet3
+        If Not uniqueDataIds.Exists(dataItem("dataId")) Then
+            uniqueDataIds.Add dataItem("dataId"), dataItem("dataId")
+        End If
+    Next dataItem
+
+    ' Find the row for "Yield Curve"
+    Dim yieldCurveRow As Integer
+    yieldCurveRow = ws.Columns(1).Find(What:="Yield Curve", LookIn:=xlValues, LookAt:=xlPart).Row
+    
+    ' Starting position for writing dataId values
+    Dim dataIdStartRow As Integer
+    Dim dataIdStartColumn As Integer
+    dataIdStartRow = yieldCurveRow + 2 ' Two rows below
+    dataIdStartColumn = 1 ' Starting from the first column
+    
+    ' Iterate over uniqueDataIds dictionary and insert dataId values into the sheet
+    Dim key As Variant
+    For Each key In uniqueDataIds.Keys
+        ws.Cells(dataIdStartRow, dataIdStartColumn).Value = key
+        dataIdStartColumn = dataIdStartColumn + 2 ' Move to the next column
+    Next key
+    
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
