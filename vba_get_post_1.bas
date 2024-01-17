@@ -63,6 +63,7 @@ Sub UpdateClosePrice()
         ' Increment row counter
         currentRow = currentRow + 1
     Next item
+    'row에 가로로 이동하면서 dataId key의 value값을 넣어준다.
     
     Dim currentColumn As Integer
     currentColumn = 3
@@ -75,7 +76,7 @@ Sub UpdateClosePrice()
         ' Compare and fill in 1 if the index matches
     Dim rowIndex As Integer
     Dim columnIndex As Integer
-    
+    'When I dont' know beforehand how many columns contain data.
     For columnIndex = 3 To ws.Cells(columnnameRow, Columns.Count).End(xlToLeft).Column
         Dim headerValue As String
         headerValue = ws.Cells(columnnameRow, columnIndex).Value
@@ -86,9 +87,31 @@ Sub UpdateClosePrice()
             End If
         Next rowIndex
     Next columnIndex
+    '여기서 부터 추가 코드 작성 (Corrleation matrix 넣어주기)
+    Dim dataGet2 As Collection
+    Set dataGet2 = jsonResponse("data_get_2")
+    
+    For columnIndex = 3 To ws.Cells(columnnameRow, Columns.Count).End(xlToLeft).Column
+        
+        headerValue = ws.Cells(columnnameRow, columnIndex).Value
+        
+        For rowIndex = startRow To ws.Cells(Rows.Count, 1).End(xlUp).Row
+            Dim cellValue As String
+            cellValue = ws.Cells(rowIndex, 1).Value
+            
+            For Each item In dataGet2
+                If (cellValue = item("th01DataId") And headerValue = item("th02DataId")) Or _
+               (cellValue = item("th02DataId") And headerValue = item("th01DataId")) Then
+                    ws.Cells(rowIndex, columnIndex).Value = item("crltCfcn")
+                End If
+            Next item
+        Next rowIndex
+    Next columnIndex
 
 
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
+'기초자산 간 correlation값 까지 작동
+
 
