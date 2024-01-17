@@ -167,6 +167,39 @@ Sub UpdateClosePrice()
         ws.Cells(currentRow2, 1).Value = item3
         currentRow2 = currentRow2 + 1
     Next item3
+    
+    'Dim lastContiguousColumn As Integer
+    lastContiguousColumn = 4 ' Start from column 3
+    
+    ' Check if there is data in the next column. If so, move one column to the right.
+    While Not IsEmpty(ws.Cells(columnnameRow, lastContiguousColumn + 1))
+        lastContiguousColumn = lastContiguousColumn + 1
+    Wend
+    
+    'Dim lastContiguousRow As Integer
+    lastContiguousRow = currentRow2
+    
+    While Not IsEmpty(ws.Cells(lastContiguousRow + 1, 1))
+        lastContiguousRow = lastContiguousRow + 1
+    Wend
+    
+    For columnIndex = 4 To lastContiguousColumn '수정해야됨. End(xlToLeft)는 끝까지 갔다가 돌아오는 거여서 Dynamic table 만들 시, 사용하면 안됨.
+        
+        headerValue = ws.Cells(currentRow + 4, columnIndex).Value
+        
+        For rowIndex = currentRow + 4 To lastContiguousRow
+            'Dim cellValue As String
+            cellValue = ws.Cells(rowIndex, 1).Value
+            
+            For Each item In dataGet2
+                If (cellValue = item("th01DataId") And headerValue = item("th02DataId")) Or _
+               (cellValue = item("th02DataId") And headerValue = item("th01DataId")) Then
+                    ws.Cells(rowIndex, columnIndex).Value = item("crltCfcn")
+                End If
+            Next item
+        Next rowIndex
+    Next columnIndex
+    
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
