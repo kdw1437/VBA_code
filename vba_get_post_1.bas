@@ -76,12 +76,27 @@ Sub UpdateClosePrice()
         ' Compare and fill in 1 if the index matches
     Dim rowIndex As Integer
     Dim columnIndex As Integer
+    
+    Dim lastContiguousColumn As Integer
+    lastContiguousColumn = 3 ' Start from column 3
+    
+    ' Check if there is data in the next column. If so, move one column to the right.
+    While Not IsEmpty(ws.Cells(columnnameRow, lastContiguousColumn + 1))
+        lastContiguousColumn = lastContiguousColumn + 1
+    Wend
+    
+    Dim lastContiguousRow As Integer
+    lastContiguousRow = startRow
+    
+    While Not IsEmpty(ws.Cells(lastContiguousRow + 1, 1))
+        lastContiguousRow = lastContiguousRow + 1
+    Wend
     'When I dont' know beforehand how many columns contain data.
-    For columnIndex = 3 To ws.Cells(columnnameRow, Columns.Count).End(xlToLeft).Column
+    For columnIndex = 3 To lastContiguousColumn
         Dim headerValue As String
         headerValue = ws.Cells(columnnameRow, columnIndex).Value
         
-        For rowIndex = startRow To ws.Cells(Rows.Count, 1).End(xlUp).Row
+        For rowIndex = startRow To lastContiguousRow
             If ws.Cells(rowIndex, 1).Value = headerValue Then
                 ws.Cells(rowIndex, columnIndex).Value = 1
             End If
@@ -91,11 +106,12 @@ Sub UpdateClosePrice()
     Dim dataGet2 As Collection
     Set dataGet2 = jsonResponse("data_get_2")
     
-    For columnIndex = 3 To ws.Cells(columnnameRow, Columns.Count).End(xlToLeft).Column
+
+    For columnIndex = 3 To lastContiguousColumn '수정해야됨. End(xlToLeft)는 끝까지 갔다가 돌아오는 거여서 Dynamic table 만들 시, 사용하면 안됨.
         
         headerValue = ws.Cells(columnnameRow, columnIndex).Value
         
-        For rowIndex = startRow To ws.Cells(Rows.Count, 1).End(xlUp).Row
+        For rowIndex = startRow To lastContiguousRow
             Dim cellValue As String
             cellValue = ws.Cells(rowIndex, 1).Value
             
