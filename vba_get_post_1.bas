@@ -108,7 +108,24 @@ Sub UpdateClosePrice()
         Next rowIndex
     Next columnIndex
 
+    ' Find the last row with data in column A
+    Dim lastDataRow As Long
+    lastDataRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    
+    ' Input "FX" two rows below the last data row in column A
+    ws.Cells(lastDataRow + 2, 1).Value = "FX"
+    
+    ' Input "Code" three cells below the "FX" cell in column A
+    ws.Cells(lastDataRow + 5, 1).Value = "Code"
+    
+    ' Input "기준환율" to the right of "Code"
+    ws.Cells(lastDataRow + 5, 2).Value = "기준환율"
+    
+    ' Input "Mar환율" to the right of "기준환율"
+    ws.Cells(lastDataRow + 5, 3).Value = "Mar환율"
 
+    
+    
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
