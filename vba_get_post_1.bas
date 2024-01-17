@@ -107,25 +107,50 @@ Sub UpdateClosePrice()
             Next item
         Next rowIndex
     Next columnIndex
-
-    ' Find the last row with data in column A
-    Dim lastDataRow As Long
-    lastDataRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    '증감된 currentRow variable을 이용해서, 다음 값들을 넣어줌.
     
-    ' Input "FX" two rows below the last data row in column A
-    ws.Cells(lastDataRow + 2, 1).Value = "FX"
-    
-    ' Input "Code" three cells below the "FX" cell in column A
-    ws.Cells(lastDataRow + 5, 1).Value = "Code"
-    
-    ' Input "기준환율" to the right of "Code"
-    ws.Cells(lastDataRow + 5, 2).Value = "기준환율"
-    
-    ' Input "Mar환율" to the right of "기준환율"
-    ws.Cells(lastDataRow + 5, 3).Value = "Mar환율"
+    If ws.Cells(currentRow + 1, 1).Value <> "FX" Then
+        ws.Cells(currentRow + 1, 1).Value = "FX"
+        ws.Cells(currentRow + 4, 1).Value = "Code"
+        ws.Cells(currentRow + 4, 2).Value = "기준환율"
+        ws.Cells(currentRow + 4, 3).Value = "Mar환율"
+    End If
 
     
+    currentColumn = 4
+    For Each item In dataGet1
+        ws.Cells(currentRow + 4, currentColumn).Value = item("dataId")
+        currentColumn = currentColumn + 1
+    Next item
     
+    Dim uniqueFXIds As Object
+    Set uniqueFXIds = CreateObject("Scripting.Dictionary")
+
+    ' Iterate over each item in dataGet2 collection
+    Dim item2 As Object
+    For Each item2 In dataGet2
+        ' Check both th01DataId and th02DataId for the substring "FX"
+        If InStr(item2("th01DataId"), "FX") > 0 Then
+            ' Add to the Dictionary if not already present
+            If Not uniqueFXIds.Exists(item2("th01DataId")) Then
+                uniqueFXIds.Add item2("th01DataId"), item2("th01DataId")
+            End If
+        End If
+
+        If InStr(item2("th02DataId"), "FX") > 0 Then
+            ' Add to the Dictionary if not already present
+            If Not uniqueFXIds.Exists(item2("th02DataId")) Then
+                uniqueFXIds.Add item2("th02DataId"), item2("th02DataId")
+            End If
+        End If
+    Next item2
+
+    Dim item3 As Variant
+    currentRow2 = currentRow + 5
+    For Each item3 In uniqueFXIds
+        ws.Cells(currentRow2, 1).Value = item3
+        currentRow2 = currentRow2 + 1
+    Next item3
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
