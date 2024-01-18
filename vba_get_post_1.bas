@@ -240,6 +240,8 @@ Sub UpdateClosePrice()
         dataIdStartColumn = dataIdStartColumn + 2 ' Move to the next column
     Next key
     
+    'input tenor and rate data based on currency type
+    Dim dataIdStartRow2 As Integer
     dataIdStartRow2 = yieldCurveRow + 4
     dataIdStartColumn = 1
     For Each key In uniqueDataIds.Keys
@@ -257,10 +259,54 @@ Sub UpdateClosePrice()
         dataIdStartRow2 = initialRow
     Next key
     
+    dataIdStartRow2 = yieldCurveRow + 4
+    dataIdStartColumn = 1
+    For Each key In uniqueDataIds.Keys
+    ' Determine the number of rows for the current currency type
+        Dim rowCount As Integer
+        rowCount = 0
+        While ws.Cells(dataIdStartRow2 + rowCount, dataIdStartColumn).Value <> ""
+            rowCount = rowCount + 1
+        Wend
+        ' Call the sorting subroutine
+        If rowCount > 1 Then ' No need to sort if there's only one row
+            SortTenorAndRate ws, dataIdStartRow2, dataIdStartColumn, rowCount
+        End If
+        ' Prepare for the next currency type
+        dataIdStartColumn = dataIdStartColumn + 2
+        'dataIdStartRow2 = dataIdStartRow2 + rowCount + (rowCount > 0)
+    Next key
+    'order rate by ascending order based on tenor value for each currency type.
     
 End Sub
 
 '이거 작동하는 코드 correlation 전까지
 '기초자산 간 correlation값 까지 작동
+
+
+Sub SortTenorAndRate(ws As Worksheet, startRow As Integer, startColumn As Integer, numRows As Integer)
+    Dim i As Integer, j As Integer
+    Dim minIndex As Integer
+    Dim tempTenor As Variant, tempRate As Variant
+
+    ' Bubble Sort by Tenor
+    For i = startRow To startRow + numRows - 1
+        minIndex = i
+        For j = i + 1 To startRow + numRows - 1
+            If ws.Cells(j, startColumn).Value < ws.Cells(minIndex, startColumn).Value Then
+                minIndex = j
+            End If
+        Next j
+        ' Swap Tenor
+        tempTenor = ws.Cells(minIndex, startColumn).Value
+        ws.Cells(minIndex, startColumn).Value = ws.Cells(i, startColumn).Value
+        ws.Cells(i, startColumn).Value = tempTenor
+        ' Swap Rate
+        tempRate = ws.Cells(minIndex, startColumn + 1).Value
+        ws.Cells(minIndex, startColumn + 1).Value = ws.Cells(i, startColumn + 1).Value
+        ws.Cells(i, startColumn + 1).Value = tempRate
+    Next i
+End Sub
+
 
 
