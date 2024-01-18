@@ -233,8 +233,30 @@ Sub UpdateClosePrice()
     Dim key As Variant
     For Each key In uniqueDataIds.Keys
         ws.Cells(dataIdStartRow, dataIdStartColumn).Value = key
+        ' Insert "Tenor" one row below the dataId
+        ws.Cells(dataIdStartRow + 1, dataIdStartColumn).Value = "Tenor"
+        ' Insert "rate" one column to the right of "Tenor"
+        ws.Cells(dataIdStartRow + 1, dataIdStartColumn + 1).Value = "rate"
         dataIdStartColumn = dataIdStartColumn + 2 ' Move to the next column
     Next key
+    
+    dataIdStartRow2 = yieldCurveRow + 4
+    dataIdStartColumn = 1
+    For Each key In uniqueDataIds.Keys
+        Dim initialRow As Integer
+        initialRow = dataIdStartRow2
+        For Each dataItem In dataGet3
+            If dataItem("dataId") = key Then
+                ws.Cells(dataIdStartRow2, dataIdStartColumn).Value = dataItem("exprVal")
+                ws.Cells(dataIdStartRow2, dataIdStartColumn + 1).Value = dataItem("errt")
+                dataIdStartRow2 = dataIdStartRow2 + 1
+            End If
+            
+        Next dataItem
+        dataIdStartColumn = dataIdStartColumn + 2
+        dataIdStartRow2 = initialRow
+    Next key
+    
     
 End Sub
 
