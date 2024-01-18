@@ -90,7 +90,7 @@ Sub PostCorrelation1()
 
     ' The URL to send the request to
     Dim url As String
-    url = "http://localhost:8080/val/postindexcorrelation"
+    url = "http://localhost:8080/val/extend_8"
 
     ' Open the HTTP request as a POST method
     xmlhttp.Open "POST", url, False
