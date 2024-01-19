@@ -77,7 +77,7 @@ Sub PostYieldCurve()
     Dim j As Integer
     Dim Tenor As Double
     Dim Rate As Double
-    Dim RiskCode As Long
+    Dim RiskCode As String
     Dim DataString As String
     ' Initialize the DataString
     DataString = ""
@@ -87,11 +87,62 @@ Sub PostYieldCurve()
         Do While Not IsEmpty(ws.Cells(YieldCurveRow.Row + 3 + j, YieldCurveRow.Column + (i - 1) * 2))
             Tenor = ws.Cells(YieldCurveRow.Row + 3 + j, YieldCurveRow.Column + (i - 1) * 2).value
             Rate = ws.Cells(YieldCurveRow.Row + 3 + j, YieldCurveRow.Column + (i - 1) * 2 + 1).value
-            RiskCode = Tenor * 360
+            RiskCode = Format(Tenor * 360, "00000")
             
+            If Len(DataString) > 0 Then
+                DataString = DataString & "&"
+            End If
+                DataString = DataString & "BASE_DT=" & baseDt & _
+                             "&DATA_SET_ID=" & dataSetId & _
+                             "&DATA_ID=" & InterestName & _
+                             "&EXPR_VAL=" & Tenor & _
+                             "&ERRT=" & Rate & _
+                             "&RISK_FCTR_CODE=" & InterestName & "_" & RiskCode & _
+                             "&OCR_DT=" & baseDt & _
+                             "&PGM_ID=MANUALLY_INPUT" & _
+                             "&WRKR_ID=HS" & _
+                             "&WORK_TRIP=0.0.0.0"
+                             
         'Increment j to move to the next cell
         j = j + 1
         Loop
     Next i
     
+    Debug.Print DataString
 End Sub
+
+Function URLEncode(StringVal As String, Optional SpaceAsPlus As Boolean = False) As String
+    Dim StringLen As Long: StringLen = Len(StringVal)
+
+    If StringLen > 0 Then
+        ReDim result(StringLen) As String
+        Dim i As Long, CharCode As Integer
+        Dim Char As String, Space As String
+
+        If SpaceAsPlus Then Space = "+" Else Space = "%20"
+
+        For i = 1 To StringLen
+            Char = Mid$(StringVal, i, 1)
+            CharCode = Asc(Char)
+
+            Select Case CharCode
+                Case 97 To 122, 65 To 90, 48 To 57, 45, 46, 95, 126
+                    result(i) = Char
+                Case 32
+                    result(i) = Space
+                Case 0 To 15
+                    result(i) = "%0" & Hex(CharCode)
+                Case Else
+                    result(i) = "%" & Hex(CharCode)
+            End Select
+        Next i
+
+        URLEncode = Join(result, "")
+    End If
+End Function
+
+'세번째 이자율표 데이터 post하기
+
+
+
+
