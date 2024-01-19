@@ -108,4 +108,66 @@ Sub PostCorrelation2()
     Next i
     Debug.Print DataString
     
+    ' Encode the DataString for URL (x-www-form-urlencoded)
+    DataString = URLEncode(DataString)
+
+    ' Create a new XML HTTP request
+    Set xmlhttp = CreateObject("WinHttp.WinHttpRequest.5.1")
+
+    ' The URL to send the request to
+    Dim url As String
+    url = "http://localhost:8080/val/extend_8"
+
+    ' Open the HTTP request as a POST method
+    xmlhttp.Open "POST", url, False
+
+    ' Set the request content-type header to application/x-www-form-urlencoded
+    xmlhttp.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
+    
+    ' Send the request with the DataString
+    xmlhttp.Send "a=" & DataString
+
+    ' Check the status of the request
+    If xmlhttp.Status = 200 Then
+        ' If the request was successful, output the response
+        MsgBox xmlhttp.responseText
+    Else
+        ' If the request failed, output the status
+        MsgBox "Error: " & xmlhttp.Status & " - " & xmlhttp.statusText
+    End If
+
+    ' Clean up
+    Set xmlhttp = Nothing
 End Sub
+
+Function URLEncode(StringVal As String, Optional SpaceAsPlus As Boolean = False) As String
+    Dim StringLen As Long: StringLen = Len(StringVal)
+
+    If StringLen > 0 Then
+        ReDim result(StringLen) As String
+        Dim i As Long, CharCode As Integer
+        Dim Char As String, Space As String
+
+        If SpaceAsPlus Then Space = "+" Else Space = "%20"
+
+        For i = 1 To StringLen
+            Char = Mid$(StringVal, i, 1)
+            CharCode = Asc(Char)
+
+            Select Case CharCode
+                Case 97 To 122, 65 To 90, 48 To 57, 45, 46, 95, 126
+                    result(i) = Char
+                Case 32
+                    result(i) = Space
+                Case 0 To 15
+                    result(i) = "%0" & Hex(CharCode)
+                Case Else
+                    result(i) = "%" & Hex(CharCode)
+            End Select
+        Next i
+
+        URLEncode = Join(result, "")
+    End If
+End Function
+
+
