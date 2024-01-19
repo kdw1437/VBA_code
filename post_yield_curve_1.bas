@@ -109,6 +109,41 @@ Sub PostYieldCurve()
     Next i
     
     Debug.Print DataString
+    
+        ' Rest of the code for sending data remains the same
+    Debug.Print DataString
+
+    ' Encode the DataString for URL (x-www-form-urlencoded)
+    DataString = URLEncode(DataString)
+    
+    ' Create a new XML HTTP request
+    Set xmlhttp = CreateObject("WinHttp.WinHttpRequest.5.1")
+    
+    ' The URL to send the request to
+    Dim url As String
+    url = "http://localhost:8080/val/extend_10"
+    
+    ' Open the HTTP request as a POST method
+    xmlhttp.Open "POST", url, False
+    
+    ' Set the request content-type header to application/x-www-form-urlencoded
+    xmlhttp.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
+    
+    ' Send the request with the DataString
+    xmlhttp.Send "a=" & DataString
+    
+    ' Check the status of the request
+    If xmlhttp.Status = 200 Then
+        ' If the request was successful, output the response
+        MsgBox xmlhttp.responseText
+    Else
+        ' If the request failed, output the status
+        MsgBox "Error: " & xmlhttp.Status & " - " & xmlhttp.statusText
+    End If
+    
+    ' Clean up
+    Set xmlhttp = Nothing
+
 End Sub
 
 Function URLEncode(StringVal As String, Optional SpaceAsPlus As Boolean = False) As String
