@@ -1,5 +1,5 @@
 Attribute VB_Name = "YieldCurve"
-'Correlation값을 칼럼에 맞춰 다이나믹하게 넣어주는 코드
+'YieldCurve값을 통화값에 맞춰 다이나믹하게 넣어주는 코드
 Sub InputYieldCurves()
     ' Variables to hold the HTTP request and response data
     Dim httpRequest As Object
@@ -86,33 +86,65 @@ Sub InputYieldCurves()
     Set selYieldCurve = jsonResponse("selYieldCurve")
     
     ' Variable to hold tenor and rate columns
-    Dim TenorColumn As Integer
-    Dim RateColumn As Integer
+' ... [previous code remains the same up to setting the CurrencyDict] ...
+    Dim currencyCode2 As Variant
     
-    ' Iterate through each entry in the JSON data
-    Dim item As Variant
-    For Each item In selYieldCurve
-        ' Split the data string by '|'
-        Dim dataParts As Variant
-        dataParts = Split(item("data"), "|")
-        
-        ' Skip the header row in the JSON data
-        If dataParts(0) = "DATA_ID" Then GoTo Continue
-        
-        ' Check if the currency is in the dictionary
-        If CurrencyDict.Exists(dataParts(0)) Then
-            ' Find the row for the tenor
-            Dim TenorRow As Integer
-            TenorRow = YieldCurveRow + 4 ' Tenor row starts 4 rows below 'Yield Curve' header
-            
-            ' Find the columns for Tenor and Rate based on the currency
-            TenorColumn = CurrencyDict(dataParts(0)) ' Tenor is in the same column as the currency code
-            RateColumn = TenorColumn + 1 ' Rate is one column to the right
-            
-            ws.Cells(TenorRow, TenorColumn).Value = dataParts(3)
-            ws.Cells(TenorRow, RateColumn).Value = dataParts(4)
-        End If
+' Iterate over each currency in the dictionary
+    For Each currencyCode2 In CurrencyDict.Keys
+        ' Reset the TenorRow for each new currency
+        Dim TenorRow As Integer
+        TenorRow = YieldCurveRow + 4 ' Start 4 rows below the 'Yield Curve' header
+    
+        ' Find the columns for Tenor and Rate based on the currency
+        TenorColumn = CurrencyDict(currencyCode2) ' Tenor is in the same column as the currency code
+        RateColumn = TenorColumn + 1 ' Rate is one column to the right
+        Dim item As Variant
+        ' Iterate through each entry in the JSON data
+        For Each item In selYieldCurve
+            ' Split the data string by '|'
+            Dim dataParts As Variant
+            dataParts = Split(item("data"), "|")
+    
+            ' Skip the header row in the JSON data
+            If dataParts(0) = "DATA_ID" Then GoTo Continue
+    
+            ' Check if the current item's currency matches the dictionary currency
+            If dataParts(0) = currencyCode2 Then
+                ' Input the tenor and rate for the matching currency
+                ws.Cells(TenorRow, TenorColumn).Value = dataParts(3) ' TENOR
+                ws.Cells(TenorRow, RateColumn).Value = dataParts(4) ' RATE
+    
+                ' Move to the next row for the next tenor-rate pair
+                TenorRow = TenorRow + 1
+            End If
 Continue:
-    Next item
+        Next item
+    Next currencyCode2
+
+End Sub
+
+'sorting하는 subroutine
+Sub SortTenorAndRate(ws As Worksheet, startRow As Integer, startColumn As Integer, numRows As Integer)
+    Dim i As Integer, j As Integer
+    Dim minIndex As Integer
+    Dim tempTenor As Variant, tempRate As Variant
+
+    ' Bubble Sort by Tenor
+    For i = startRow To startRow + numRows - 1
+        minIndex = i
+        For j = i + 1 To startRow + numRows - 1
+            If ws.Cells(j, startColumn).Value < ws.Cells(minIndex, startColumn).Value Then
+                minIndex = j
+            End If
+        Next j
+        ' Swap Tenor
+        tempTenor = ws.Cells(minIndex, startColumn).Value
+        ws.Cells(minIndex, startColumn).Value = ws.Cells(i, startColumn).Value
+        ws.Cells(i, startColumn).Value = tempTenor
+        ' Swap Rate
+        tempRate = ws.Cells(minIndex, startColumn + 1).Value
+        ws.Cells(minIndex, startColumn + 1).Value = ws.Cells(i, startColumn + 1).Value
+        ws.Cells(i, startColumn + 1).Value = tempRate
+    Next i
 End Sub
 
