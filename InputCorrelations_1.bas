@@ -31,10 +31,10 @@ Sub InputCorrelations()
     End With
     
     Dim rowIndex As Integer
-    Dim columnIndex As Integer
+    Dim ColumnIndex As Integer
     
-    Dim lastContiguousColumn As Integer
-    lastContiguousColumn = 3 ' Start from column 3
+    Dim LastContiguousColumn As Integer
+    LastContiguousColumn = 3 ' Start from column 3
     
     Dim equityRow As Integer
     equityRow = ws.Columns(1).Find(What:="Equity", LookIn:=xlValues, LookAt:=xlPart).Row
@@ -42,11 +42,11 @@ Sub InputCorrelations()
     ' Starting row for writing data is 4 rows below 'Equity'
     Dim startRow As Integer
     startRow = equityRow + 4
-    Dim columnnameRow As Integer
-    columnnameRow = equityRow + 3
+    Dim ColumnNameRow As Integer
+    ColumnNameRow = equityRow + 3
     
-    While Not IsEmpty(ws.Cells(columnnameRow, lastContiguousColumn + 1))
-        lastContiguousColumn = lastContiguousColumn + 1
+    While Not IsEmpty(ws.Cells(ColumnNameRow, LastContiguousColumn + 1))
+        LastContiguousColumn = LastContiguousColumn + 1
     Wend
     
     Dim LastContiguousRow As Integer
@@ -56,16 +56,16 @@ Sub InputCorrelations()
         LastContiguousRow = LastContiguousRow + 1
     Wend
     'When I dont' know beforehand how many columns contain data.
-    For columnIndex = 3 To lastContiguousColumn
+    For ColumnIndex = 3 To LastContiguousColumn
         Dim headerValue As String
-        headerValue = ws.Cells(columnnameRow, columnIndex).Value
+        headerValue = ws.Cells(ColumnNameRow, ColumnIndex).Value
         
         For rowIndex = startRow To LastContiguousRow
             If ws.Cells(rowIndex, 1).Value = headerValue Then
-                ws.Cells(rowIndex, columnIndex).Value = 1
+                ws.Cells(rowIndex, ColumnIndex).Value = 1
             End If
         Next rowIndex
-    Next columnIndex
+    Next ColumnIndex
     
     Set jsonResponse = JsonConverter.ParseJson(JsonString)
     ' ... [earlier code remains the same]
@@ -74,9 +74,9 @@ Sub InputCorrelations()
     Dim selCorrelation As Collection
     Set selCorrelation = jsonResponse("selCorrelation")
     
-    For columnIndex = 3 To lastContiguousColumn '수정해야됨. End(xlToLeft)는 끝까지 갔다가 돌아오는 거여서 Dynamic table 만들 시, 사용하면 안됨.
+    For ColumnIndex = 3 To LastContiguousColumn '수정해야됨. End(xlToLeft)는 끝까지 갔다가 돌아오는 거여서 Dynamic table 만들 시, 사용하면 안됨.
         
-        headerValue = ws.Cells(columnnameRow, columnIndex).Value
+        headerValue = ws.Cells(ColumnNameRow, ColumnIndex).Value
         
         For rowIndex = startRow To LastContiguousRow
             Dim cellValue As String
@@ -90,22 +90,22 @@ Sub InputCorrelations()
                                  
                 If (cellValue = dataParts(4) And headerValue = dataParts(5)) Or _
                 (cellValue = dataParts(5) And headerValue = dataParts(4)) Then
-                    ws.Cells(rowIndex, columnIndex).Value = dataParts(3)
+                    ws.Cells(rowIndex, ColumnIndex).Value = dataParts(3)
                 End If
 
             Next i
             
         Next rowIndex
-    Next columnIndex
+    Next ColumnIndex
     
-    Dim FXRow As Integer
-    FXRow = ws.Columns(1).Find(What:="FX", LookIn:=xlValues, LookAt:=xlWhole).Row
+    Dim fxRow As Integer
+    fxRow = ws.Columns(1).Find(What:="FX", LookIn:=xlValues, LookAt:=xlWhole).Row
     
     Dim FXmarker As Integer
-    FXmarker = FXRow + 4
+    FXmarker = fxRow + 4
     
     Dim ColumnNameRow2 As Integer
-    ColumnNameRow2 = FXRow + 3
+    ColumnNameRow2 = fxRow + 3
     
     Dim ColumnIndex2 As Integer
     ColumnIndex2 = 4
