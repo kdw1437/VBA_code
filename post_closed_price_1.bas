@@ -1,5 +1,6 @@
-Attribute VB_Name = "Module4"
-Sub PostClosedPrice()
+Attribute VB_Name = "PostPrice"
+'ClosePrice post코드입니다.
+Sub PostClosePrice()
     Dim DataString As String
     Dim xmlhttp As Object
     Dim i As Integer
@@ -47,18 +48,20 @@ Sub PostClosedPrice()
                      "&WRKR_ID=HS" & _
                      "&WORK_TRIP=0.0.0.0"
     Next i
-    Debug.Print DataString
     
+    Debug.Print DataString
         ' Encode the DataString for URL (x-www-form-urlencoded)
     DataString = URLEncode(DataString)
+    
+    Debug.Print DataString
 
     ' Create a new XML HTTP request
     Set xmlhttp = CreateObject("WinHttp.WinHttpRequest.5.1")
 
     ' The URL to send the request to
     Dim url As String
-    url = "http://localhost:8080/val/postclosedprice"
-
+    'url = "http://localhost:8080/val/postclosedprice"
+    url = "http://localhost:8080/val/error_1"
     ' Open the HTTP request as a POST method
     xmlhttp.Open "POST", url, False
 
@@ -81,36 +84,5 @@ Sub PostClosedPrice()
     Set xmlhttp = Nothing
 End Sub
 
-Function URLEncode(StringVal As String, Optional SpaceAsPlus As Boolean = False) As String
-    Dim StringLen As Long: StringLen = Len(StringVal)
 
-    If StringLen > 0 Then
-        ReDim result(StringLen) As String
-        Dim i As Long, CharCode As Integer
-        Dim Char As String, Space As String
-
-        If SpaceAsPlus Then Space = "+" Else Space = "%20"
-
-        For i = 1 To StringLen
-            Char = Mid$(StringVal, i, 1)
-            CharCode = Asc(Char)
-
-            Select Case CharCode
-                Case 97 To 122, 65 To 90, 48 To 57, 45, 46, 95, 126
-                    result(i) = Char
-                Case 32
-                    result(i) = Space
-                Case 0 To 15
-                    result(i) = "%0" & Hex(CharCode)
-                Case Else
-                    result(i) = "%" & Hex(CharCode)
-            End Select
-        Next i
-
-        URLEncode = Join(result, "")
-    End If
-End Function
-
-'모듈 작동함. 팀장님이 말씀하신 방식의 형태의 데이터를 send
-'OTC_PRIC_DATA_PRTC 코드임.
 
